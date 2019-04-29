@@ -67,6 +67,10 @@ pkgs.mkShell rec {
     pkgs.shellcheck
     pkgs.carnix
 
+    # To ensure we always have a compatible nix in our shells.
+    # Travis doesn’t know `nix-env` otherwise.
+    pkgs.nix
+
     # for auto-checking the README.md and tutorial
     mdsh-sandbox
   ] ++
