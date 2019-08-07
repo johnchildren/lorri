@@ -55,7 +55,7 @@ impl ExitError {
     /// Helpers to create exit results
     ///
     /// Note: err panics if exitcode is zero.
-    fn err<T>(exitcode: i32, message: T) -> ExitError
+    pub fn err<T>(exitcode: i32, message: T) -> ExitError
     where
         T: Into<String>,
     {
