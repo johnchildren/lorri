@@ -30,6 +30,7 @@ pub fn main(project: Project) -> OpResult {
 
     let root_paths = Roots::from_project(&project).paths();
 
+    // TODO: this should check whether the daemon is running!
     if !root_paths.all_exist() {
         return Err(ExitError::errmsg(
             "Please start `lorri daemon` or run `lorri watch` before using direnv integration.",
