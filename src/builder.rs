@@ -153,17 +153,27 @@ pub fn run(
     match inst_info {
         Info::Success(s) => {
             let drvs = s.output_paths.clone();
-            let realized = ::nix::CallOpts::file(drvs.shell_gc_root.as_path()).path()?;
-            Ok(Info::Success(Success {
-                output_paths: OutputPaths {
-                    shell_gc_root: realized.0,
-                },
-                gc_root_temp_dir: realized.1,
-                paths: s.paths,
-                // TODO: we are passing the instantiation stderr here,
-                // but we really want to get the CallOpts stderr
-                log_lines: s.log_lines,
-            }))
+            match ::nix::CallOpts::file(drvs.shell_gc_root.as_path()).path() {
+                Ok(realized) => Ok(Info::Success(Success {
+                    output_paths: OutputPaths {
+                        shell_gc_root: realized.0,
+                    },
+                    gc_root_temp_dir: realized.1,
+                    paths: s.paths,
+                    // TODO: we are passing the instantiation stderr here,
+                    // but we really want to get the CallOpts stderr
+                    log_lines: s.log_lines,
+                })),
+                Err(::nix::OnePathError::Build(::nix::BuildError::ExecutionFailed(output))) => {
+                    Ok(Info::Failure(Failure {
+                        exec_result: output.status,
+                        // TODO: make nix.rs stream this output
+                        log_lines: ::osstrlines::Lines::from(std::io::Cursor::new(output.stderr))
+                            .collect::<Result<Vec<_>, _>>()?,
+                    }))
+                }
+                Err(err) => Err(Error::Build(err)),
+            }
         }
         Info::Failure(f) => Ok(Info::Failure(f)),
     }
@@ -280,11 +290,7 @@ impl From<std::io::Error> for Error {
         Error::Instantiate(e)
     }
 }
-impl From<::nix::OnePathError> for Error {
-    fn from(e: ::nix::OnePathError) -> Error {
-        Error::Build(e)
-    }
-}
+
 impl From<Box<dyn Any + Send + 'static>> for Error {
     fn from(e: std::boxed::Box<(dyn std::any::Any + std::marker::Send + 'static)>) -> Error {
         Error::ThreadFailure(e)
@@ -378,6 +384,7 @@ in {}
 
         print!("{}", nix_drv);
 
+        // build, because instantiate doesn’t return the build output (obviously …)
         let info = run(&::NixFile::from(cas.file_from_string(&nix_drv)?), &cas).unwrap();
         match info {
             Info::Success(i) => {
@@ -387,6 +394,21 @@ in {}
             }
             _ => panic!(),
         }
+        Ok(())
+    }
+
+    /// If the build fails, we shouldn’t crash in the process.
+    #[test]
+    fn gracefully_handle_failing_build() -> std::io::Result<()> {
+        let tmp = tempfile::tempdir()?;
+        let cas = ContentAddressable::new(tmp.path().to_owned())?;
+
+        let d = ::NixFile::from(cas.file_from_string(&drv(
+            "shell",
+            &format!("dep = {};", drv("dep", r##"args = [ "-c" "exit 1" ];"##)),
+        ))?);
+
+        run(&d, &cas).expect("build can fail, but must not panic");
         Ok(())
     }
 
