@@ -234,21 +234,6 @@ rec {
 
 
 # end
-# bitflags-0.7.0
-
-  crates.bitflags."0.7.0" = deps: { features?(features_.bitflags."0.7.0" deps {}) }: buildRustCrate {
-    crateName = "bitflags";
-    version = "0.7.0";
-    description = "A macro to generate structures which behave like bitflags.\n";
-    authors = [ "The Rust Project Developers" ];
-    sha256 = "1hr72xg5slm0z4pxs2hiy4wcyx3jva70h58b7mid8l0a4c8f7gn5";
-  };
-  features_.bitflags."0.7.0" = deps: f: updateFeatures f (rec {
-    bitflags."0.7.0".default = (f.bitflags."0.7.0".default or true);
-  }) [];
-
-
-# end
 # bitflags-1.0.4
 
   crates.bitflags."1.0.4" = deps: { features?(features_.bitflags."1.0.4" deps {}) }: buildRustCrate {
@@ -534,33 +519,44 @@ rec {
 
 
 # end
-# filetime-0.2.4
+# filetime-0.2.7
 
-  crates.filetime."0.2.4" = deps: { features?(features_.filetime."0.2.4" deps {}) }: buildRustCrate {
+  crates.filetime."0.2.7" = deps: { features?(features_.filetime."0.2.7" deps {}) }: buildRustCrate {
     crateName = "filetime";
-    version = "0.2.4";
+    version = "0.2.7";
     description = "Platform-agnostic accessors of timestamps in File metadata\n";
     authors = [ "Alex Crichton <alex@alexcrichton.com>" ];
-    sha256 = "1lsc0qjihr8y56rlzdcldzr0nbljm8qqi691msgwhy6wrkawwx5d";
+    edition = "2018";
+    sha256 = "10rd6xpgjmcjnlhi02g0awirwn537andfq79jgz7p0cc64gc5mny";
     dependencies = mapFeatures features ([
-      (crates."cfg_if"."${deps."filetime"."0.2.4"."cfg_if"}" deps)
+      (crates."cfg_if"."${deps."filetime"."0.2.7"."cfg_if"}" deps)
     ])
       ++ (if kernel == "redox" then mapFeatures features ([
-      (crates."redox_syscall"."${deps."filetime"."0.2.4"."redox_syscall"}" deps)
+      (crates."redox_syscall"."${deps."filetime"."0.2.7"."redox_syscall"}" deps)
     ]) else [])
       ++ (if (kernel == "linux" || kernel == "darwin") then mapFeatures features ([
-      (crates."libc"."${deps."filetime"."0.2.4"."libc"}" deps)
+      (crates."libc"."${deps."filetime"."0.2.7"."libc"}" deps)
+    ]) else [])
+      ++ (if kernel == "windows" then mapFeatures features ([
+      (crates."winapi"."${deps."filetime"."0.2.7"."winapi"}" deps)
     ]) else []);
   };
-  features_.filetime."0.2.4" = deps: f: updateFeatures f (rec {
-    cfg_if."${deps.filetime."0.2.4".cfg_if}".default = true;
-    filetime."0.2.4".default = (f.filetime."0.2.4".default or true);
-    libc."${deps.filetime."0.2.4".libc}".default = true;
-    redox_syscall."${deps.filetime."0.2.4".redox_syscall}".default = true;
+  features_.filetime."0.2.7" = deps: f: updateFeatures f (rec {
+    cfg_if."${deps.filetime."0.2.7".cfg_if}".default = true;
+    filetime."0.2.7".default = (f.filetime."0.2.7".default or true);
+    libc."${deps.filetime."0.2.7".libc}".default = true;
+    redox_syscall."${deps.filetime."0.2.7".redox_syscall}".default = true;
+    winapi = fold recursiveUpdate {} [
+      { "${deps.filetime."0.2.7".winapi}"."fileapi" = true; }
+      { "${deps.filetime."0.2.7".winapi}"."minwindef" = true; }
+      { "${deps.filetime."0.2.7".winapi}"."winbase" = true; }
+      { "${deps.filetime."0.2.7".winapi}".default = true; }
+    ];
   }) [
-    (features_.cfg_if."${deps."filetime"."0.2.4"."cfg_if"}" deps)
-    (features_.redox_syscall."${deps."filetime"."0.2.4"."redox_syscall"}" deps)
-    (features_.libc."${deps."filetime"."0.2.4"."libc"}" deps)
+    (features_.cfg_if."${deps."filetime"."0.2.7"."cfg_if"}" deps)
+    (features_.redox_syscall."${deps."filetime"."0.2.7"."redox_syscall"}" deps)
+    (features_.libc."${deps."filetime"."0.2.7"."libc"}" deps)
+    (features_.winapi."${deps."filetime"."0.2.7"."winapi"}" deps)
   ];
 
 
@@ -581,52 +577,47 @@ rec {
 
 
 # end
-# fsevent-0.2.17
+# fsevent-0.4.0
 
-  crates.fsevent."0.2.17" = deps: { features?(features_.fsevent."0.2.17" deps {}) }: buildRustCrate {
+  crates.fsevent."0.4.0" = deps: { features?(features_.fsevent."0.4.0" deps {}) }: buildRustCrate {
     crateName = "fsevent";
-    version = "0.2.17";
-    description = "Rust bindings to the fsevent-sys OSX API for file changes notifications";
+    version = "0.4.0";
+    description = "Rust bindings to the fsevent-sys macOS API for file changes notifications";
     authors = [ "Pierre Baillet <pierre@baillet.name>" ];
-    sha256 = "0wgn3qyyl7dacxpg3ddbc2hliyjk79pjpck968y03x8mf90hqcyw";
+    sha256 = "19wynmx2k8gmsxv6fa9kpjzb9v5k6qc2ykziw25bray645spg77v";
     dependencies = mapFeatures features ([
-      (crates."bitflags"."${deps."fsevent"."0.2.17"."bitflags"}" deps)
-      (crates."fsevent_sys"."${deps."fsevent"."0.2.17"."fsevent_sys"}" deps)
-      (crates."libc"."${deps."fsevent"."0.2.17"."libc"}" deps)
+      (crates."bitflags"."${deps."fsevent"."0.4.0"."bitflags"}" deps)
+      (crates."fsevent_sys"."${deps."fsevent"."0.4.0"."fsevent_sys"}" deps)
     ]);
   };
-  features_.fsevent."0.2.17" = deps: f: updateFeatures f (rec {
-    bitflags."${deps.fsevent."0.2.17".bitflags}".default = true;
-    fsevent."0.2.17".default = (f.fsevent."0.2.17".default or true);
-    fsevent_sys."${deps.fsevent."0.2.17".fsevent_sys}".default = true;
-    libc."${deps.fsevent."0.2.17".libc}".default = true;
+  features_.fsevent."0.4.0" = deps: f: updateFeatures f (rec {
+    bitflags."${deps.fsevent."0.4.0".bitflags}".default = true;
+    fsevent."0.4.0".default = (f.fsevent."0.4.0".default or true);
+    fsevent_sys."${deps.fsevent."0.4.0".fsevent_sys}".default = true;
   }) [
-    (features_.bitflags."${deps."fsevent"."0.2.17"."bitflags"}" deps)
-    (features_.fsevent_sys."${deps."fsevent"."0.2.17"."fsevent_sys"}" deps)
-    (features_.libc."${deps."fsevent"."0.2.17"."libc"}" deps)
+    (features_.bitflags."${deps."fsevent"."0.4.0"."bitflags"}" deps)
+    (features_.fsevent_sys."${deps."fsevent"."0.4.0"."fsevent_sys"}" deps)
   ];
 
 
 # end
-# fsevent-sys-0.1.6
+# fsevent-sys-2.0.1
 
-  crates.fsevent_sys."0.1.6" = deps: { features?(features_.fsevent_sys."0.1.6" deps {}) }: buildRustCrate {
+  crates.fsevent_sys."2.0.1" = deps: { features?(features_.fsevent_sys."2.0.1" deps {}) }: buildRustCrate {
     crateName = "fsevent-sys";
-    version = "0.1.6";
-    description = "Rust bindings to the fsevent OSX API for file changes notifications";
+    version = "2.0.1";
+    description = "Rust bindings to the fsevent macOS API for file changes notifications";
     authors = [ "Pierre Baillet <pierre@baillet.name>" ];
-    sha256 = "0zydr8qppn25qlgxgdblwx6qgdvj6f12xp7jjhz72z8wlsgqkm08";
-    libPath = "lib.rs";
-    libName = "fsevent_sys";
+    sha256 = "1jlnqp6iw4mmwd2f973j33k00mbfc1cv9wpdvxq1jk3bry558gbr";
     dependencies = mapFeatures features ([
-      (crates."libc"."${deps."fsevent_sys"."0.1.6"."libc"}" deps)
+      (crates."libc"."${deps."fsevent_sys"."2.0.1"."libc"}" deps)
     ]);
   };
-  features_.fsevent_sys."0.1.6" = deps: f: updateFeatures f (rec {
-    fsevent_sys."0.1.6".default = (f.fsevent_sys."0.1.6".default or true);
-    libc."${deps.fsevent_sys."0.1.6".libc}".default = true;
+  features_.fsevent_sys."2.0.1" = deps: f: updateFeatures f (rec {
+    fsevent_sys."2.0.1".default = (f.fsevent_sys."2.0.1".default or true);
+    libc."${deps.fsevent_sys."2.0.1".libc}".default = true;
   }) [
-    (features_.libc."${deps."fsevent_sys"."0.1.6"."libc"}" deps)
+    (features_.libc."${deps."fsevent_sys"."2.0.1"."libc"}" deps)
   ];
 
 
@@ -1259,60 +1250,60 @@ rec {
 
 
 # end
-# notify-4.0.9
+# notify-4.0.13
 
-  crates.notify."4.0.9" = deps: { features?(features_.notify."4.0.9" deps {}) }: buildRustCrate {
+  crates.notify."4.0.13" = deps: { features?(features_.notify."4.0.13" deps {}) }: buildRustCrate {
     crateName = "notify";
-    version = "4.0.9";
+    version = "4.0.13";
     description = "Cross-platform filesystem notification library";
     authors = [ "Félix Saparelli <me@passcod.name>" "Jorge Israel Peña <jorge.israel.p@gmail.com>" "Michael Maurizi <michael.maurizi@gmail.com>" "Pierre Baillet <oct@zoy.org>" "Joe Wilm <joe@jwilm.com>" "Daniel Faust <hessijames@gmail.com>" ];
-    sha256 = "0rfh99piyc11h6snajx8fh4ny781x87mc59sgcg6rkxn1d4mwpqs";
+    sha256 = "16jdx11pz0frdsis4g8hqsryaad8r4scar0wmmqblaw80hwrf9d3";
     dependencies = mapFeatures features ([
-      (crates."bitflags"."${deps."notify"."4.0.9"."bitflags"}" deps)
-      (crates."filetime"."${deps."notify"."4.0.9"."filetime"}" deps)
-      (crates."libc"."${deps."notify"."4.0.9"."libc"}" deps)
-      (crates."walkdir"."${deps."notify"."4.0.9"."walkdir"}" deps)
+      (crates."bitflags"."${deps."notify"."4.0.13"."bitflags"}" deps)
+      (crates."filetime"."${deps."notify"."4.0.13"."filetime"}" deps)
+      (crates."libc"."${deps."notify"."4.0.13"."libc"}" deps)
+      (crates."walkdir"."${deps."notify"."4.0.13"."walkdir"}" deps)
     ])
       ++ (if kernel == "linux" then mapFeatures features ([
-      (crates."inotify"."${deps."notify"."4.0.9"."inotify"}" deps)
-      (crates."mio"."${deps."notify"."4.0.9"."mio"}" deps)
-      (crates."mio_extras"."${deps."notify"."4.0.9"."mio_extras"}" deps)
+      (crates."inotify"."${deps."notify"."4.0.13"."inotify"}" deps)
+      (crates."mio"."${deps."notify"."4.0.13"."mio"}" deps)
+      (crates."mio_extras"."${deps."notify"."4.0.13"."mio_extras"}" deps)
     ]) else [])
       ++ (if kernel == "darwin" then mapFeatures features ([
-      (crates."fsevent"."${deps."notify"."4.0.9"."fsevent"}" deps)
-      (crates."fsevent_sys"."${deps."notify"."4.0.9"."fsevent_sys"}" deps)
+      (crates."fsevent"."${deps."notify"."4.0.13"."fsevent"}" deps)
+      (crates."fsevent_sys"."${deps."notify"."4.0.13"."fsevent_sys"}" deps)
     ]) else [])
       ++ (if kernel == "windows" then mapFeatures features ([
-      (crates."kernel32_sys"."${deps."notify"."4.0.9"."kernel32_sys"}" deps)
-      (crates."winapi"."${deps."notify"."4.0.9"."winapi"}" deps)
+      (crates."kernel32_sys"."${deps."notify"."4.0.13"."kernel32_sys"}" deps)
+      (crates."winapi"."${deps."notify"."4.0.13"."winapi"}" deps)
     ]) else []);
-    features = mkFeatures (features."notify"."4.0.9" or {});
+    features = mkFeatures (features."notify"."4.0.13" or {});
   };
-  features_.notify."4.0.9" = deps: f: updateFeatures f (rec {
-    bitflags."${deps.notify."4.0.9".bitflags}".default = true;
-    filetime."${deps.notify."4.0.9".filetime}".default = true;
-    fsevent."${deps.notify."4.0.9".fsevent}".default = true;
-    fsevent_sys."${deps.notify."4.0.9".fsevent_sys}".default = true;
-    inotify."${deps.notify."4.0.9".inotify}".default = (f.inotify."${deps.notify."4.0.9".inotify}".default or false);
-    kernel32_sys."${deps.notify."4.0.9".kernel32_sys}".default = true;
-    libc."${deps.notify."4.0.9".libc}".default = true;
-    mio."${deps.notify."4.0.9".mio}".default = true;
-    mio_extras."${deps.notify."4.0.9".mio_extras}".default = true;
-    notify."4.0.9".default = (f.notify."4.0.9".default or true);
-    walkdir."${deps.notify."4.0.9".walkdir}".default = true;
-    winapi."${deps.notify."4.0.9".winapi}".default = true;
+  features_.notify."4.0.13" = deps: f: updateFeatures f (rec {
+    bitflags."${deps.notify."4.0.13".bitflags}".default = true;
+    filetime."${deps.notify."4.0.13".filetime}".default = true;
+    fsevent."${deps.notify."4.0.13".fsevent}".default = true;
+    fsevent_sys."${deps.notify."4.0.13".fsevent_sys}".default = true;
+    inotify."${deps.notify."4.0.13".inotify}".default = (f.inotify."${deps.notify."4.0.13".inotify}".default or false);
+    kernel32_sys."${deps.notify."4.0.13".kernel32_sys}".default = true;
+    libc."${deps.notify."4.0.13".libc}".default = true;
+    mio."${deps.notify."4.0.13".mio}".default = true;
+    mio_extras."${deps.notify."4.0.13".mio_extras}".default = true;
+    notify."4.0.13".default = (f.notify."4.0.13".default or true);
+    walkdir."${deps.notify."4.0.13".walkdir}".default = true;
+    winapi."${deps.notify."4.0.13".winapi}".default = true;
   }) [
-    (features_.bitflags."${deps."notify"."4.0.9"."bitflags"}" deps)
-    (features_.filetime."${deps."notify"."4.0.9"."filetime"}" deps)
-    (features_.libc."${deps."notify"."4.0.9"."libc"}" deps)
-    (features_.walkdir."${deps."notify"."4.0.9"."walkdir"}" deps)
-    (features_.inotify."${deps."notify"."4.0.9"."inotify"}" deps)
-    (features_.mio."${deps."notify"."4.0.9"."mio"}" deps)
-    (features_.mio_extras."${deps."notify"."4.0.9"."mio_extras"}" deps)
-    (features_.fsevent."${deps."notify"."4.0.9"."fsevent"}" deps)
-    (features_.fsevent_sys."${deps."notify"."4.0.9"."fsevent_sys"}" deps)
-    (features_.kernel32_sys."${deps."notify"."4.0.9"."kernel32_sys"}" deps)
-    (features_.winapi."${deps."notify"."4.0.9"."winapi"}" deps)
+    (features_.bitflags."${deps."notify"."4.0.13"."bitflags"}" deps)
+    (features_.filetime."${deps."notify"."4.0.13"."filetime"}" deps)
+    (features_.libc."${deps."notify"."4.0.13"."libc"}" deps)
+    (features_.walkdir."${deps."notify"."4.0.13"."walkdir"}" deps)
+    (features_.inotify."${deps."notify"."4.0.13"."inotify"}" deps)
+    (features_.mio."${deps."notify"."4.0.13"."mio"}" deps)
+    (features_.mio_extras."${deps."notify"."4.0.13"."mio_extras"}" deps)
+    (features_.fsevent."${deps."notify"."4.0.13"."fsevent"}" deps)
+    (features_.fsevent_sys."${deps."notify"."4.0.13"."fsevent_sys"}" deps)
+    (features_.kernel32_sys."${deps."notify"."4.0.13"."kernel32_sys"}" deps)
+    (features_.winapi."${deps."notify"."4.0.13"."winapi"}" deps)
   ];
 
 

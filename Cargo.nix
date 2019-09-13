@@ -108,7 +108,6 @@ rec {
     bit_vec = "0.5.0";
   };
   deps.bit_vec."0.5.0" = {};
-  deps.bitflags."0.7.0" = {};
   deps.bitflags."1.0.4" = {};
   deps.byteorder."1.3.1" = {};
   deps.cc."1.0.37" = {};
@@ -136,18 +135,18 @@ rec {
     regex = "1.1.0";
     termcolor = "1.0.4";
   };
-  deps.filetime."0.2.4" = {
+  deps.filetime."0.2.7" = {
     cfg_if = "0.1.6";
     redox_syscall = "0.1.51";
     libc = "0.2.55";
+    winapi = "0.3.6";
   };
   deps.fnv."1.0.6" = {};
-  deps.fsevent."0.2.17" = {
-    bitflags = "0.7.0";
-    fsevent_sys = "0.1.6";
-    libc = "0.2.55";
+  deps.fsevent."0.4.0" = {
+    bitflags = "1.0.4";
+    fsevent_sys = "2.0.1";
   };
-  deps.fsevent_sys."0.1.6" = {
+  deps.fsevent_sys."2.0.1" = {
     libc = "0.2.55";
   };
   deps.fuchsia_cprng."0.1.1" = {};
@@ -198,7 +197,7 @@ rec {
     log = "0.4.6";
     md5 = "0.6.1";
     nix = "0.14.0";
-    notify = "4.0.9";
+    notify = "4.0.13";
     proptest = "0.9.1";
     regex = "1.1.0";
     serde = "1.0.88";
@@ -246,16 +245,16 @@ rec {
     libc = "0.2.55";
     void = "1.0.2";
   };
-  deps.notify."4.0.9" = {
+  deps.notify."4.0.13" = {
     bitflags = "1.0.4";
-    filetime = "0.2.4";
+    filetime = "0.2.7";
     libc = "0.2.55";
     walkdir = "2.2.7";
     inotify = "0.6.1";
     mio = "0.6.16";
     mio_extras = "2.0.5";
-    fsevent = "0.2.17";
-    fsevent_sys = "0.1.6";
+    fsevent = "0.4.0";
+    fsevent_sys = "2.0.1";
     kernel32_sys = "0.2.2";
     winapi = "0.3.6";
   };
